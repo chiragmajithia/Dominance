@@ -75,6 +75,7 @@ void Init::on_pb_start_clicked()
      * Saves the Players Names in QStringList with mappings to Player id
      * Launches BoardUI with Player Names.
      **/
+    setEnabled(false);
     QStringList players;
     for(int  i = 0; i < N_players; i++)
     {
@@ -85,4 +86,12 @@ void Init::on_pb_start_clicked()
     b = new Board(X_dim,Y_dim,players,this);
     b->show();
     hide();
+}
+
+void Init::on_pb_load_clicked()
+{
+    /** TODO:
+     * Load Game Parameters and Players from File
+     * Revisit Board.ui - add Save Game button near Quit.
+    **/
 }

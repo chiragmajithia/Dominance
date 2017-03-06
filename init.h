@@ -24,13 +24,15 @@ private slots:
     void on_pb_commit_clicked();
     void on_pb_start_clicked();
 
+    void on_pb_load_clicked();
+
 private:
 
     /**
      * Game Parameters
      * TODO : Set the max and min values of the UI using this constants
     **/
-    static const int N_MAX = 6, X_MAX = 16, Y_MAX = 16;
+    static const int N_MAX = 4, X_MAX = 16, Y_MAX = 16;
 
     int X_dim, Y_dim, N_players;
 
