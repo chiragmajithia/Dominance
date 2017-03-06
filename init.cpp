@@ -82,5 +82,7 @@ void Init::on_pb_start_clicked()
     }
 
     qDebug() <<"starting board with " <<  players;
-    //hide();
+    b = new Board(X_dim,Y_dim,players,this);
+    b->show();
+    hide();
 }

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QLineEdit>
 #include <QVector>
+#include "board.h"
 
 namespace Ui {
 class Init;
@@ -36,6 +37,7 @@ private:
     /** UI Stuff  declarations **/
     Ui::Init *ui;
     QVector<QLineEdit*> led;
+    Board *b;
 
     /** Function Declarations **/
     void populatePlayerList();
