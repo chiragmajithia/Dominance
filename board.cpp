@@ -8,10 +8,12 @@ Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),N(p_n.s
      * Intialize Score Table. (Done)
      * Connect the buttons to a Slot() - get the address of the sender. (Done)
      * Create  and Initialize Players -> One vs One, One vs Comp, Comp vs Comp.. (Remove the slots?)
-     * Initialize Board with 'Begin Game' Configuration.
+     * Initialize Board with 'Begin Game' Configuration. (Done)
      * Connect SLOTs with Signal Mapper - Did not work.
      * RESOLVE QMetaObject::connectSlotsByName: No matching signal for on_gb_clicked()
     **/
+    b_slctd = QPair<int,int>(-1,-1); //invalid index;
+    b_prop = "";
 
     ui->setupUi(this);
 
@@ -59,8 +61,9 @@ Board::~Board()
 void Board::on_gb_clicked()
 {
     /** TODO
+     * Save the previous state of the button selected - using index and stylesheet. (Correct Algo: Works for now)
      * Simulate actions of current player - update Score Table..
-     * Clone - show valid clone sites (Current)
+     * Clone - show valid clone sites (Current) (Done)
      * if(click is on clonable site)
      * clone actions are valid -- Enable Commit!
      * if(click is on owned site)
@@ -68,12 +71,27 @@ void Board::on_gb_clicked()
      * enable and view potential jump sites.
      * if(siteSelected == true)
      **/
+
     QPushButton *b = (QPushButton*) sender();
-    qDebug() << "clicked " << button2d.key(b) << " by " << QString::fromStdString(board_owner->name);
+    if(b_slctd != QPair<int,int>(-1,-1))
+    {
+        resetStyle(b_slctd,b_prop);
+    }
+
+    b_slctd = button2d.key(b);
+    b_prop = b->styleSheet();
+
+    qDebug() << "clicked " << b_slctd << " by " << QString::fromStdString(board_owner->name);
     ui->pb_commit->setEnabled(true);
     b->setStyleSheet("QPushButton:checked {background-color: rgb(225, 225, 0);"
                      "border-style: inset;}"
-                     "QPushButton::!checked {"+bckgnd_color[board_owner->id]+"}");
+                     "QPushButton::!checked {"+bckgnd_color[board_owner->id]+"}"); //Correct Algo -- works for now
+}
+
+inline void Board::resetStyle(QPair<int,int> key, QString style)
+{
+    button2d.value(key)->setStyleSheet(style);
+    button2d.value(key)->setChecked(false);
 }
 
 void Board::on_pb_commit_clicked()
@@ -87,8 +105,14 @@ void Board::on_pb_commit_clicked()
      * Update Score Lists with current player
      * Enable the relevant buttons on the grid for the next player
     **/
+    board[b_slctd.first][b_slctd.second] = board_owner->id;
+    setButtonColor(b_slctd.first,b_slctd.second,board_owner->id);
+    button2d.value(b_slctd)->setEnabled(false);
+    b_slctd.first = -1;
+    b_slctd.second = -1;
     disableOwnerSites();
     notifyAllPlayers();
+    ui->t_score->setItem(board_owner->id,1,new QTableWidgetItem(QString::number(board_owner->score)));
     nextBoardOwner();
     enableOwnerSites();
 }

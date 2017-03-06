@@ -16,6 +16,7 @@ void Player::ownSites(const std::vector<Point> &indx)
         board[indx[i].x][indx[i].y] = id;
         owned_sites.push_back(indx[i]);
     }
+    score =owned_sites.size();
 }
 
 void Player::populateOwnedSites()
@@ -70,7 +71,6 @@ std::vector<Player::Point> Player::getCloneableSites()
                 int y_ = y + j_;
                 if(x_ > -1 && x_ < X && y_>-1 && y_ < Y)
                 {
-                    qDebug() << "Checking (" << x << "," << y << "):" << "(" <<x_ << "," << y_ <<")";
                     if(Player::board[x_][y_] == UNCLAIMED)
                         cloneable.push_back(Player::Point(x_,y_));
                 }
@@ -79,6 +79,5 @@ std::vector<Player::Point> Player::getCloneableSites()
 
     }
     qDebug() << QString::fromStdString(name) <<"Displaying clonebale";
-    Player::dispVector(cloneable);
     return cloneable;
 }

@@ -31,8 +31,7 @@ private:
     /** GUI Stuff **/
     Ui::Board *ui;
     QPair<int,int> key;
-    QHash<QPair<int,int>, QPushButton*> button2d;
-
+    QHash<QPair<int,int>, QPushButton*> button2d; //Use Player::Point structure?
 
     /** Board Stuff **/
     const int X, Y, N, INIT_WITH = 2; //Board Dimensions and Players. Initializes with 2 random positions
@@ -49,6 +48,8 @@ private:
     std::vector<std::vector<char> > board;
     std::vector<Player> players;
     Player  *board_owner; //use unique pointer?
+    QPair<int,int> b_slctd;
+    QString b_prop;
 
     /** Functions **/
     inline void initPlayers(QStringList &p_n);
@@ -57,6 +58,8 @@ private:
     inline void setButtonColor(int b_idx, int b_idy, int color_id);
     inline void setClonableStyle(int b_idx, int b_idy, int color_id);
     inline void removeStyle(int b_idx, int b_idy);
+    inline void resetStyle(QPair<int,int> key, QString style);
+
     void notifyAllPlayers();
     void enableOwnerSites();
     void disableOwnerSites();
