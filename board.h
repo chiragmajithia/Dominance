@@ -6,7 +6,9 @@
 #include <QHash>
 #include <QDebug>
 #include <QSignalMapper>
+#include <cstdlib>
 #include "include/player.h"
+
 
 namespace Ui {
 class Board;
@@ -31,18 +33,33 @@ private:
     QPair<int,int> key;
     QHash<QPair<int,int>, QPushButton*> button2d;
 
+
     /** Board Stuff **/
-    int X, Y, N; //Board Dimensions and Players
+    const int X, Y, N, INIT_WITH = 2; //Board Dimensions and Players. Initializes with 2 random positions
+    const QStringList bckgnd_color = QStringList() << "background-color: rgb(255,0,0)"
+                                                   << "background-color: rgb(0,255,0)"
+                                                   << "background-color: rgb(0,0,255)"
+                                                   << "background-color: rgb(0,0,0)";
+    const QStringList clnble_color = QStringList() << "background-color: rgb(255,100,100)"
+                                                   << "background-color: rgb(100,255,100)"
+                                                   << "background-color: rgb(100,100,255)"
+                                                   << "background-color: rgb(100,100,100)";
+
     QStringList player_names; // Names of Players.
     std::vector<std::vector<char> > board;
     std::vector<Player> players;
-    Player  *board_owner;
-
+    Player  *board_owner; //use unique pointer?
 
     /** Functions **/
     inline void initPlayers(QStringList &p_n);
     inline void initBoard();
     inline void nextBoardOwner();
+    inline void setButtonColor(int b_idx, int b_idy, int color_id);
+    inline void setClonableStyle(int b_idx, int b_idy, int color_id);
+    inline void removeStyle(int b_idx, int b_idy);
+    void notifyAllPlayers();
+    void enableOwnerSites();
+    void disableOwnerSites();
 };
 
 #endif // BOARD_H

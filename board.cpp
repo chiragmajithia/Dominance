@@ -1,7 +1,7 @@
 #include "board.h"
 #include "ui_board.h"
 
-Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),QMainWindow(parent),ui(new Ui::Board)
+Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),N(p_n.size()),QMainWindow(parent),ui(new Ui::Board)
 {
     /** TODO:
      * Initialize Board paramters generate Layout. (Done)
@@ -15,7 +15,6 @@ Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),QMainWi
 
     ui->setupUi(this);
 
-    N = p_n.size();
     ui->pb_commit->setEnabled(false);
 
     for(int i = 0; i < N; i++)
@@ -32,13 +31,19 @@ Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),QMainWi
             QPushButton *b = new QPushButton;
             button2d.insert(p,b);
             b->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
-            b->setCheckable(true);
+            b->setEnabled(false);
+            b->setCheckable(false);
             ui->gridLayout->addWidget(b,i,j);
             connect(b, SIGNAL(clicked()), this , SLOT(on_gb_clicked()));
         }
     }
-    initPlayers(p_n); //Initialize Players with their names.
+
+    this->setMaximumSize(this->size());
+
     initBoard(); //Initialize copy of board;
+    initPlayers(p_n); //Initialize Players with their names.
+    notifyAllPlayers();
+    enableOwnerSites();
     qDebug() << "Created Board with " << X << "," << Y <<" dimensions and" << player_names <<"players";
 }
 
@@ -66,10 +71,10 @@ void Board::on_gb_clicked()
     QPushButton *b = (QPushButton*) sender();
     qDebug() << "clicked " << button2d.key(b) << " by " << QString::fromStdString(board_owner->name);
     ui->pb_commit->setEnabled(true);
-    b->setStyleSheet("QPushButton:checked {background-color: rgb(225, 225, 0);border-style: inset;}");
+    b->setStyleSheet("QPushButton:checked {background-color: rgb(225, 225, 0);"
+                     "border-style: inset;}"
+                     "QPushButton::!checked {"+bckgnd_color[board_owner->id]+"}");
 }
-
-
 
 void Board::on_pb_commit_clicked()
 {
@@ -82,29 +87,10 @@ void Board::on_pb_commit_clicked()
      * Update Score Lists with current player
      * Enable the relevant buttons on the grid for the next player
     **/
+    disableOwnerSites();
+    notifyAllPlayers();
     nextBoardOwner();
-
-}
-
-inline void Board::initBoard()
-{
-    board.resize(Y);
-    for(int i = 0; i < Y; i++)
-    {
-        board[i].resize(X, -1);
-    }
-}
-
-inline void Board::initPlayers(QStringList &p_n)
-{
-    players.resize(N);
-    for(int i = 0; i < N; i++)
-    {
-        Player p(board,i,p_n[i].toStdString());
-        players[i] = p;
-    }
-    board_owner = &players[0];
-    ui->t_score->selectRow(0);
+    enableOwnerSites();
 }
 
 inline void Board::nextBoardOwner()
@@ -127,3 +113,141 @@ void Board::on_pb_quit_clicked()
     this->deleteLater();
 }
 
+inline void Board::initBoard()
+{
+    board.resize(Y);
+    for(int i = 0; i < Y; i++)
+    {
+        board[i].resize(X, -1);
+    }
+}
+
+inline void Board::initPlayers(QStringList &p_n)
+{
+    players.resize(N);
+    for(int i = 0; i < N; i++)
+    {
+        Player p(board,i,p_n[i].toStdString());
+        players[i] = p;
+    }
+    board_owner = &players[0];
+    ui->t_score->selectRow(0);
+
+    for(int i = 0; i < N; i++)
+    {
+        int init_with = 0;
+        while(init_with < INIT_WITH)
+        {
+            int indx = (rand()%(X*Y));
+            int x = indx % (Y-1);
+            int y = indx /(Y-1);
+            if(board[x][y] == -1)
+            {
+                qDebug() << x << "," << y<<" for Player " << i;
+                board[x][y] = i;
+                setButtonColor(x,y,i);
+                init_with ++;
+            }
+        }
+    }
+}
+
+inline void Board::setButtonColor(int b_idx, int b_idy , int color_id)
+{
+    button2d.value(QPair<int,int>(b_idx,b_idy))->setStyleSheet(bckgnd_color[color_id]);
+}
+
+inline void Board::setClonableStyle(int b_idx, int b_idy, int color_id)
+{
+    button2d.value(QPair<int,int>(b_idx,b_idy))->setStyleSheet(clnble_color[color_id]);
+}
+
+inline void Board::removeStyle(int b_idx, int b_idy)
+{
+    /** Removes style from button
+     * Potential Use - after jump;
+     **/
+    button2d.value(QPair<int,int>(b_idx,b_idy))->setStyleSheet("");
+}
+
+void Board::notifyAllPlayers()
+{
+    /** Parse the board and notify all players about their sites
+      * i.e. Player->owned is updated
+      * Consider erasing all owned_sites before this
+      **/
+
+    for(int i = 0; i < N; i++)
+        players[i].eraseOwnedSites();
+
+    for(int  i = 0; i < X; i++)
+    {
+        for(int j = 0; j < Y; j++)
+        {
+            if(board[i][j] != -1)
+            {
+                qDebug() << "["<<i<<","<<j<<"] = " << (int)board[i][j];
+                Player::Point pnt(i,j);
+                std::vector<Player::Point> index;
+                index.push_back(pnt);
+                players[board[i][j]].ownSites(index);
+            }
+        }
+    }
+}
+
+void Board::enableOwnerSites()
+{
+    /** Enables current player's currently owned sites (for jumps)
+     * Enables current player's clonable sites
+    **/
+    Player::Point indx;
+    QPushButton *b;
+    for(int i = 0; i < board_owner->owned_sites.size(); i++)
+    {
+       indx = board_owner->owned_sites[i];
+       b = button2d.value(QPair<int,int>(indx.x,indx.y));
+       setButtonColor(indx.x,indx.y,board_owner->id);
+       b->setEnabled(true);
+       b->setCheckable(true);
+    }
+
+    std::vector<Player::Point> clonable_sites = board_owner->getCloneableSites(); // Consider making this class variable: Ease to reset
+    qDebug() << QString::fromStdString(board_owner->name) << "got clonable sites: "<< QString::number(clonable_sites.size());
+    for(int i = 0; i < clonable_sites.size(); i++)
+    {
+       indx = clonable_sites[i];
+       //qDebug() << "Indx :" << indx.x << "," << indx.y;
+       b = button2d.value(QPair<int,int>(indx.x,indx.y));
+       setClonableStyle(indx.x,indx.y,board_owner->id);
+       b->setEnabled(true);
+       b->setCheckable(true);
+    }
+}
+
+void Board::disableOwnerSites()
+{
+    /** Disables current player's currently owned sites
+     * Disables current player's clonable sites.
+     * Called before shifting board ownership;
+     **/
+    Player::Point indx;
+    QPushButton *b;
+    for(int i = 0; i < board_owner->owned_sites.size(); i++)
+    {
+       indx = board_owner->owned_sites[i];
+       b = button2d.value(QPair<int,int>(indx.x,indx.y));
+       b->setEnabled(false);
+       b->setCheckable(false);
+    }
+    std::vector<Player::Point> clonable_sites = board_owner->getCloneableSites(); // Consider making this class variable: Ease to reset
+    qDebug() << QString::fromStdString(board_owner->name) << "got clonable sites: "<< QString::number(clonable_sites.size());
+    for(int i = 0; i < clonable_sites.size(); i++)
+    {
+       indx = clonable_sites[i];
+       b = button2d.value(QPair<int,int>(indx.x,indx.y));
+       removeStyle(indx.x,indx.y);
+       b->setEnabled(true);
+       b->setCheckable(true);
+    }
+}
