@@ -222,6 +222,28 @@ void Board::on_pb_commit_clicked()
     nextBoardOwner(); // give the ownership of board to next player
     enableOwnerSites(); //enable next player's owner sites
     enableCloneableSites(); //enable next player's cloneable sites
+    if(!board_owner->getAvailableMoves()) // Must have better game over situation for more than 2 players
+    {
+        QMessageBox::StandardButton reply = QMessageBox::warning(this,"Game Over!",QString::fromStdString(players[getWinner()].name) + QString::fromStdString("wins !!!\n")
+                                             + QString::fromStdString("Return Configuration Page?"),QMessageBox::Yes | QMessageBox::No);
+        if(QMessageBox::Yes)
+            on_pb_quit_clicked();
+        qDebug() << "Game over";
+    }
+}
+
+inline uint Board::getWinner()
+{
+    uint max_score = 0, id = 0;
+    for(int i = 0; i < N; i++)
+    {
+        if(max_score < players[i].score)
+        {
+            max_score = players[i].score;
+            id = i;
+        }
+    }
+    return id;
 }
 
 inline void Board::clone_commit_clicked()
@@ -333,7 +355,6 @@ void Board::notifyAllPlayers()
         players[i].updateScore();
         ui->t_score->setItem(players[i].id,1,new QTableWidgetItem(QString::number(players[i].score)));
     }
-
 
 }
 

@@ -147,3 +147,15 @@ void Player::dispVector(std::vector<Player::Point> vec)
         qDebug() << vec[i].x << "," << vec[i].y;
     }
 }
+
+uint Player::getAvailableMoves()
+{
+    uint available_moves = 0;
+    for ( auto it = jump_sites.begin(); it != jump_sites.end(); ++it)
+    {
+       available_moves+=it->second.size();
+    }
+
+    available_moves += cloneable_sites.size();
+    return available_moves;
+}

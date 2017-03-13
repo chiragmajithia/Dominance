@@ -81,6 +81,7 @@ public:
     void setJumpSites();
     std::vector<Point> getJumpSites(Point p);
     void updateScore();
+    uint getAvailableMoves();
 
     /** Debug Helper Functions **/
     void dispBoard();

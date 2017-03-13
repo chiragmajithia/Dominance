@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include "include/player.h"
 #include <unordered_map>
+#include <QMessageBox>
 
 namespace Ui {
 class Board;
@@ -74,6 +75,7 @@ private:
     inline void clone_commit_clicked();
     inline void jump_commit_clicked();
     void updateBoardAfterMove();
+    inline uint getWinner();
 };
 
 #endif // BOARD_H
