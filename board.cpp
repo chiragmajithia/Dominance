@@ -559,10 +559,10 @@ inline void Board::setButtonNeutralColor(int b_idx, int b_idy)
 
 inline void Board::initBoard()
 {
-    board.resize(Y);
-    for(int i = 0; i < Y; i++)
+    board.resize(X);
+    for(int i = 0; i < X; i++)
     {
-        board[i].resize(X, -1);
+        board[i].resize(Y, -1);
     }
 }
 

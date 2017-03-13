@@ -2,9 +2,10 @@
 
 Player::Player(std::vector<std::vector<char> > *b, int id_, std::string n): board(b), id(id_), name(n)
 {
-    Y = (*board).size();
-    X = (*board)[0].size();
+    X = (*board).size();
+    Y = (*board)[0].size();
     score = 0;
+    available_moves = 0;
     std::cout << "Player Made: " << name << std::endl;
 }
 

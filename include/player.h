@@ -67,6 +67,8 @@ public:
     int id, score;
     int X, Y;
 
+
+    int available_moves;
     std::vector<Point> owned_sites;
     std::vector<Point> cloneable_sites;
     std::unordered_map< Point, std::vector<Point>, KeyHasher > jump_sites;
