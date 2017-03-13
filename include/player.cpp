@@ -90,6 +90,14 @@ void Player::eraseOwnedSites()
 
 void Player::setCloneableSites()
 {
+    bool c_sites[X][Y];
+    for(int i = 0; i < X; i++)
+    {
+        for(int j = 0; j < Y; j++)
+        {
+            c_sites[i][j] = false;
+        }
+    }
     cloneable_sites.resize(0);
     for(uint i = 0; i < owned_sites.size(); i++)
     {
@@ -104,14 +112,18 @@ void Player::setCloneableSites()
                 int y_ = y + j_;
                 if(x_ > -1 && x_ < X && y_>-1 && y_ < Y)
                 {
-                    if((*board)[x_][y_] == UNCLAIMED)
+                    if((*board)[x_][y_] == UNCLAIMED && !c_sites[x_][y_])
+                    {
                         cloneable_sites.push_back(Player::Point(x_,y_));
+                        c_sites[x_][y_] = true;
+                    }
+
                 }
             }
         }
 
     }
-   // qDebug() << QString::fromStdString(name) <<"Displaying clonebale";
+   qDebug() << QString::fromStdString(name) <<"Displaying clonebale Size" << cloneable_sites.size();
     //dispVector(cloneable_sites);
 }
 std::vector<Player::Point> Player::getCloneableSites()

@@ -190,7 +190,6 @@ inline void Board::resetStyle(QPair<int,int> key, QString style)
 void Board::on_pb_commit_clicked()
 {
     /**
-     * TODO:
      * Check the action taken by the player - clone or jump
      * Set Score for the player
      * Update Action Lists
@@ -219,14 +218,34 @@ void Board::on_pb_commit_clicked()
 
     ui->pb_commit->setEnabled(false);
 
-    nextBoardOwner(); // give the ownership of board to next player
-    enableOwnerSites(); //enable next player's owner sites
-    enableCloneableSites(); //enable next player's cloneable sites
-    if(!board_owner->getAvailableMoves()) // Must have better game over situation for more than 2 players
+    /**
+     * Check for game over -- for N players, skips intermediate players
+     * with no moves -- a small modification, if player does not own any
+     * sites, the player is out, can be made - its trivial
+    **/
+    int id = board_owner->id;
+    for(int  i = 0; i < N; i++)
     {
-        QMessageBox::StandardButton reply = QMessageBox::warning(this,"Game Over!",QString::fromStdString(players[getWinner()].name) + QString::fromStdString("wins !!!\n")
+        nextBoardOwner(); // give the ownership of board to next player
+        enableOwnerSites(); //enable next player's owner sites
+        enableCloneableSites(); //enable next player's cloneable sites
+        if(!board_owner->getAvailableMoves())
+        {
+            QMessageBox::information(this,"No available Moves",QString::fromStdString(board_owner->name) +
+                                                          QString(" has no valid moves..Turn Skipped"));
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if(id == board_owner->id)
+    {
+        QMessageBox::StandardButton reply = QMessageBox::warning(this,"Game Over!",QString::fromStdString(players[getWinner()].name) + QString::fromStdString(" wins !!!\n")
                                              + QString::fromStdString("Return Configuration Page?"),QMessageBox::Yes | QMessageBox::No);
-        if(QMessageBox::Yes)
+        if(reply  == QMessageBox::Yes)
             on_pb_quit_clicked();
         qDebug() << "Game over";
     }
