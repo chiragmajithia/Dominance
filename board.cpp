@@ -215,20 +215,18 @@ void Board::on_pb_commit_clicked()
     disableOwnerSites(); //disable owner sites
     disableCloneableSites(); //disable and hide cloneable sites
 
-
     /** Update score on UI **/
 
     ui->pb_commit->setEnabled(false);
 
     nextBoardOwner(); // give the ownership of board to next player
-
     enableOwnerSites(); //enable next player's owner sites
     enableCloneableSites(); //enable next player's cloneable sites
 }
 
 inline void Board::clone_commit_clicked()
 {
-    updateBoardAfterClone(); //Assign cite to owner
+    updateBoardAfterMove(); //Assign cite to owner
     /** Set GUI for the assigned button **/
     setButtonOwnColor(bindx_clicked.first,bindx_clicked.second,board_owner->id);
     setButtonEnable(bindx_clicked.first,bindx_clicked.second,false);
@@ -246,7 +244,8 @@ inline void Board::clone_commit_clicked()
 inline void Board::jump_commit_clicked()
 {
     qDebug() << "jump from "  << bindx_jump_parent << " to "<< bindx_clicked;
-    updateBoardAfterJump();
+    updateBoardAfterMove();
+    board[bindx_jump_parent.first][bindx_jump_parent.second] = UNCLAIMED;
    // board[bindx_clicked.first][bindx_clicked.second] = board_owner->id; //Assign cite to owner
     /** Set GUI for the assigned button **/
     setButtonOwnColor(bindx_clicked.first,bindx_clicked.second,board_owner->id);
@@ -262,32 +261,8 @@ inline void Board::jump_commit_clicked()
     disableJumpSites(); //disable and hide cloneable sites
 }
 
-void Board::updateBoardAfterJump()
-{
-    qDebug() << "jump from "  << bindx_jump_parent << " to "<< bindx_clicked;
-    int x = bindx_clicked.first;
-    int y = bindx_clicked.second;
-    board[x][y] = board_owner->id;
-    for(int  i = -1; i <= 1; i++)
-    {
-        for(int j = -1; j <= 1; j++)
-        {
-            int x_ = x + i;
-            int y_ = y + j;
-            if(x_ >= 0 && x_ < X && y_ >= 0 && y_ <Y)
-            {
-                if(board[x_][y_] != UNCLAIMED)
-                {
-                    setButtonOwnColor(x_,y_,board_owner->id);
-                    board[x_][y_] = board_owner->id;
-                }
-            }
-        }
-    }
-    board[bindx_jump_parent.first][bindx_jump_parent.second] = UNCLAIMED;
-}
 
-void Board::updateBoardAfterClone()
+void Board::updateBoardAfterMove()
 {
     qDebug() << "jump from "  << bindx_jump_parent << " to "<< bindx_clicked;
     int x = bindx_clicked.first;
@@ -477,9 +452,6 @@ void Board::disableJumpSites()
     }
 }
 
-
-
-
 void Board::on_pb_quit_clicked()
 {
     /** Check if this is correct way to quit ***/
@@ -506,20 +478,34 @@ inline void Board::initPlayers(QStringList &p_n)
 
 void Board::initSpawn()
 {
-    for(int i = 0; i < N; i++)
+    if(N == 2)
     {
-        int init_with = 0;
-        while(init_with < INIT_WITH)
+        board[0][0] = 0;
+        board[X-1][Y-1] = 0;
+        setButtonOwnColor(0,0,0);
+        setButtonOwnColor(X-1,Y-1,0);
+        board[X-1][0] = 1;
+        board[0][Y-1] = 1;
+        setButtonOwnColor(0,Y-1,1);
+        setButtonOwnColor(X-1,0,1);
+    }
+    else
+    {
+        for(int i = 0; i < N; i++)
         {
-            int indx = (rand()%(X*Y));
-            int x = indx % (Y-1);
-            int y = indx /(Y-1);
-            if(board[x][y] == -1)
+            int init_with = 0;
+            while(init_with < INIT_WITH)
             {
-                qDebug() << x << "," << y<<" for Player " << i;
-                board[x][y] = i;
-                setButtonOwnColor(x,y,i);
-                init_with ++;
+                int indx = (rand()%(X*Y));
+                int x = indx % (Y-1);
+                int y = indx /(Y-1);
+                if(board[x][y] == -1)
+                {
+                    qDebug() << x << "," << y<<" for Player " << i;
+                    board[x][y] = i;
+                    setButtonOwnColor(x,y,i);
+                    init_with ++;
+                }
             }
         }
     }

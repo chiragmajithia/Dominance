@@ -73,10 +73,7 @@ private:
     void toDoCloneable(QPushButton *b);
     inline void clone_commit_clicked();
     inline void jump_commit_clicked();
-    void updateBoardAfterJump();
-    void updateBoardAfterClone();
-
-
+    void updateBoardAfterMove();
 };
 
 #endif // BOARD_H
