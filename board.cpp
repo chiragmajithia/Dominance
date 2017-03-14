@@ -535,7 +535,7 @@ inline void Board::initPlayers(QStringList &p_n)
 
     for(int i = 0; i < N-1; i++)
     {
-        players.push_back( new Player(&board,i,p_n[i].toStdString()));
+        players.push_back( new AI(&board,i,p_n[i].toStdString()));
     }
     players.push_back( new AI(&board,N-1,p_n[N-1].toStdString()));
     board_owner = players[0];
