@@ -154,6 +154,8 @@ void AI::simMove(Move &m)
     {
         board[m.from.x][m.from.y] = UNCLAIMED;
     }
+
+    //should set score based on some heuristic.. here we use the players score after move
     m.score = getScore();
 }
 
@@ -165,7 +167,7 @@ int AI::getScore()
     {
         for(int j = 0; j < Y; j++)
         {
-            if(board[i][j] == id)
+            if((int)board[i][j] == id)
                 score++;
         }
     }

@@ -298,7 +298,7 @@ inline void Board::runAI()
 
 inline uint Board::getWinner()
 {
-    uint max_score = 0, id = 0;
+    int max_score = 0, id = 0;
     for(int i = 0; i < N; i++)
     {
         if(max_score < players[i]->score)

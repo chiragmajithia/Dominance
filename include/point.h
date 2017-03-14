@@ -60,7 +60,7 @@ struct Move
    Action action;
    Point from;
    Point to;
-   int score;
+   float score;
    Move(Action a_,Point from_, Point to_, int score_ = -1):action(a_),from(from_),to(to_),score(score_) {}
    bool operator<(const Move &a)
    {

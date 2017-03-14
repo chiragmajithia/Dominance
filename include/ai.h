@@ -23,6 +23,7 @@ public:
     std::vector< Move > moves;
     std::vector< Move > best_moves;
     std::vector< std::vector<char> > board; //own copy of board
+    int N;
 
 
     Move getBestMove();
