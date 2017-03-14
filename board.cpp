@@ -244,7 +244,7 @@ void Board::on_pb_commit_clicked()
                 else if(best_move.action == Action::jump)
                 {
                     QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
-                    b->setStyleSheet("border:5px solid #00ff00;"+clnble_color[board_owner->id]);
+                    b->setStyleSheet("border:5px solid #0fff00;"+clnble_color[board_owner->id]);
                     b = button2d.value(QPair<int,int>(best_move.from.x,best_move.from.y));
                     b->setStyleSheet("border:5px solid #ff0000;"+clnble_color[board_owner->id]);
                 }
@@ -535,7 +535,7 @@ inline void Board::initPlayers(QStringList &p_n)
 
     for(int i = 0; i < N-1; i++)
     {
-        players.push_back( new Player(&board,i,p_n[i].toStdString()));
+        players.push_back( new AI(&board,i,p_n[i].toStdString()));
     }
     players.push_back( new AI(&board,N-1,p_n[N-1].toStdString()));
     board_owner = players[0];
