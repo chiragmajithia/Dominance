@@ -76,6 +76,7 @@ private:
     void toDoCloneable(QPushButton *b);
     inline void clone_commit_clicked();
     inline void jump_commit_clicked();
+    inline void runAI();
     void updateBoardAfterMove();
     inline uint getWinner();
 };
