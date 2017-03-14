@@ -549,11 +549,12 @@ void Board::on_pb_quit_clicked()
 inline void Board::initPlayers(QStringList &p_n)
 {
 
-    for(int i = 0; i < N-1; i++)
+    players.push_back( new Player(&board,0,p_n[0].toStdString()));
+    for(int i = 1; i < N; i++)
     {
-        players.push_back( new Player(&board,i,p_n[i].toStdString()));
+     players.push_back( new AI(&board,i,p_n[i].toStdString()));
     }
-    players.push_back( new AI(&board,N-1,p_n[N-1].toStdString()));
+    //players.push_back( new AI(&board,N-1,p_n[N-1].toStdString()));
     board_owner = players[0];
     ui->t_score->selectRow(0);
     initSpawn();
