@@ -141,7 +141,7 @@ inline void Board::runAI()
         if(best_move.action == Action::clone)
         {
             QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
-            b->setStyleSheet("border:5px solid #ff0000;"+clnble_color[board_owner->id]);
+            b->setStyleSheet("border:5px solid rgb(255,255,128);"+clnble_color[board_owner->id]);
             b->setChecked(true);
             bindx_clicked = QPair<int,int>(best_move.to.x,best_move.to.y);
             ui->pb_commit->setText("Clone");
@@ -150,10 +150,10 @@ inline void Board::runAI()
         else if(best_move.action == Action::jump)
         {
             QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
-            b->setStyleSheet("border:5px solid #0fff00;"+clnble_color[board_owner->id]);
+            b->setStyleSheet("border:5px solid rgb(255,255,128);"+clnble_color[board_owner->id]);
             b->setChecked(true);
             b = button2d.value(QPair<int,int>(best_move.from.x,best_move.from.y));
-            b->setStyleSheet("border:5px solid #ff0000;"+bckgnd_color[board_owner->id]);
+            b->setStyleSheet("border:5px solid rgb(128,255,255);"+bckgnd_color[board_owner->id]);
             b->setChecked(true);
             bindx_jump_parent = QPair<int,int>(best_move.from.x,best_move.from.y);
             bindx_clicked = QPair<int,int>(best_move.to.x,best_move.to.y);
