@@ -228,33 +228,17 @@ void Board::on_pb_commit_clicked()
     for(int  i = 0; i < N; i++)
     {
         nextBoardOwner(); // give the ownership of board to next player
-        enableOwnerSites(); //enable next player's owner sites
-        enableCloneableSites(); //enable next player's cloneable sites
+
         if(board_owner->playerType() == 1)
         {
-            AI* ai_player = dynamic_cast<AI*>(board_owner);
-            if(ai_player!= NULL)
-            {
-                Move best_move = ai_player -> getBestMove();
-                if(best_move.action == Action::clone)
-                {
-                    QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
-                    b->setStyleSheet("border:5px solid #ff0000;"+clnble_color[board_owner->id]);
-                }
-                else if(best_move.action == Action::jump)
-                {
-                    QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
-                    b->setStyleSheet("border:5px solid #0fff00;"+clnble_color[board_owner->id]);
-                    b = button2d.value(QPair<int,int>(best_move.from.x,best_move.from.y));
-                    b->setStyleSheet("border:5px solid #ff0000;"+clnble_color[board_owner->id]);
-                }
-                qDebug() << "Cast Suceeded";
-            }
+            runAI();
             qDebug() << "AI HERE!! RUN!!!" ;
 
         }
         else
         {
+            enableOwnerSites(); //enable next player's owner sites
+            enableCloneableSites(); //enable next player's cloneable sites
             qDebug() << "Huh! Muggle";
         }
 
@@ -277,6 +261,38 @@ void Board::on_pb_commit_clicked()
         if(reply  == QMessageBox::Yes)
             on_pb_quit_clicked();
         qDebug() << "Game over";
+    }
+}
+
+inline void Board::runAI()
+{
+    AI* ai_player = dynamic_cast<AI*>(board_owner);
+    if(ai_player!= NULL)
+    {
+        Move best_move = ai_player -> getBestMove();
+        if(best_move.action == Action::clone)
+        {
+            QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
+            b->setStyleSheet("border:5px solid #ff0000;"+clnble_color[board_owner->id]);
+            b->setChecked(true);
+            bindx_clicked = QPair<int,int>(best_move.to.x,best_move.to.y);
+            ui->pb_commit->setText("Clone");
+            ui->pb_commit->setEnabled(true);
+        }
+        else if(best_move.action == Action::jump)
+        {
+            QPushButton *b = button2d.value(QPair<int,int>(best_move.to.x,best_move.to.y));
+            b->setStyleSheet("border:5px solid #0fff00;"+clnble_color[board_owner->id]);
+            b->setChecked(true);
+            b = button2d.value(QPair<int,int>(best_move.from.x,best_move.from.y));
+            b->setStyleSheet("border:5px solid #ff0000;"+bckgnd_color[board_owner->id]);
+            b->setChecked(true);
+            bindx_jump_parent = QPair<int,int>(best_move.from.x,best_move.from.y);
+            bindx_clicked = QPair<int,int>(best_move.to.x,best_move.to.y);
+            ui->pb_commit->setText("Jump");
+            ui->pb_commit->setEnabled(true);
+        }
+        qDebug() << "Cast Suceeded";
     }
 }
 

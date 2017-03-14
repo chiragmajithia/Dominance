@@ -77,6 +77,7 @@ private:
     inline void clone_commit_clicked();
     inline void jump_commit_clicked();
     void updateBoardAfterMove();
+    inline void runAI();
     inline uint getWinner();
 };
 
