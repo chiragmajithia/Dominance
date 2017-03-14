@@ -31,16 +31,7 @@ Board::Board(int x, int y, QStringList &p_n, QWidget *parent) :X(x),Y(y),N(p_n.s
     initBoard(); //Initialize copy of board;
     initPlayers(p_n); //Initialize Players with their names.
     notifyAllPlayers(); //notifyAllPlayers about their sites
-
-    enableOwnerSites();
-    enableCloneableSites();
-    qDebug() << "Created Board with " << X << "," << Y <<" dimensions and" << player_names <<"players";
-    for(int i = 0; i < N; i++)
-    {
-        players[i]->dispBoard();
-    }
-
-    runAi();
+    runAI();
 
 }
 
@@ -55,131 +46,11 @@ Board::~Board()
 
 void Board::gb_clicked()
 {
-    /** TODO
-     * Save the previous state of the button selected - using index and stylesheet. (Correct Algo: Works for now)
-     * Simulate actions of current player - update Score Table..
-     * Clone - show valid clone sites (Current) (Done)
-     * if(click is on clonable site)
-     * clone actions are valid -- Enable Commit!
-     * if(click is on owned site)
-     * set siteSelected == true - disable clonable sites
-     * enable and view potential jump sites.
-     * if(siteSelected == true)
-     **/
 
-    QPushButton *b = (QPushButton*) sender();
-
-        if(bindx_clicked != QPair<int,int>(-1,-1) && !jump_sites_enabled)
-        {
-            resetStyle(bindx_clicked,b_tmp_style);
-        }
-        else if(bindx_clicked != QPair<int,int>(-1,-1) && jump_sites_enabled)
-        {
-            if(!isOwner(bindx_clicked))
-                resetStyle(bindx_clicked,b_tmp_style);
-        }
-
-        bindx_clicked = button2d.key(b);
-        b_tmp_style = b->styleSheet();
-
-        /**
-         * if Button selected is owner?
-         *  owner_site = true
-         * if owner_site is checked && button selected not owner -> means its jump site??
-         *  jump_site = true
-         * if owner site is not checked && button selected not owner -> means its clone site
-         *  clone_site = false
-        **/
-
-        if(isOwner(bindx_clicked))
-        {
-            /**
-             * if(owner_site is checked)
-             *  disable clone sites
-             *  enable jump sites
-             *  View Jump Sites
-             *else
-             *  disable jump sites
-             *  enable clone sites
-             *  view clone sites
-             **/
-            if(b->isChecked())
-            {
-                disableCloneableSites();
-                disableOwnerSites();
-                //board_owner->getJumpSites(Point(b_slctd.first,b_slctd.second));
-                enableJumpSites();
-                b->setEnabled(true);
-                //qDebug() << "Owner Selected: " << bindx_clicked;
-                ui->pb_commit->setEnabled(false);
-                owner_site_selected = true;
-            }
-            else
-            {
-                disableJumpSites();
-                enableCloneableSites();
-                enableOwnerSites();
-               // qDebug() << "Owner Deselected " << bindx_clicked;
-                owner_site_selected = false;
-            }
-        }
-
-        if(owner_site_selected) //is clicked
-        {
-
-            if(jump_sites_enabled && !isOwner(bindx_clicked))
-            {
-               toDoJump(b);
-            }
-
-        }
-
-        if(clone_sites_enabled) //is clicked
-        {
-              toDoCloneable(b);
-        }
 
 }
 
-inline void Board::toDoJump(QPushButton *b)
-{
-    if(b->isChecked())
-    {
-        ui->pb_commit->setText("Jump");
-        ui->pb_commit->setEnabled(true);
-       // qDebug() << "Jump Site Clicked " << bindx_clicked;
-    }
-    else
-    {
-        ui->pb_commit->setText("Commit");
-        ui->pb_commit->setEnabled(false);
-        resetStyle(bindx_clicked,b_tmp_style);
-        b_tmp_style = "";
-        bindx_clicked = QPair<int,int>(-1,-1);
-    }
-}
 
-inline void Board::toDoCloneable(QPushButton *b )
-{
-    if(b->isChecked())
-    {
-        //b_slctd = button2d.key(b);
-        //b_tmp_style = b->styleSheet();
-        ui->pb_commit->setText("Clone");
-       // qDebug() << "clicked " << bindx_clicked << " by " << QString::fromStdString(board_owner->name) << "Cloneable";
-        ui->pb_commit->setEnabled(true);
-        b->setStyleSheet("QPushButton:checked {background-color: rgb(225, 225, 0);"
-                 "border-style: inset;}");
-    }
-    else
-    {
-        ui->pb_commit->setText("Commit");
-        ui->pb_commit->setEnabled(false);
-        resetStyle(bindx_clicked,b_tmp_style);
-        b_tmp_style = "";
-        bindx_clicked = QPair<int,int>(-1,-1);
-    }
-}
 
 
 inline void Board::resetStyle(QPair<int,int> key, QString style)
@@ -212,8 +83,6 @@ void Board::on_pb_commit_clicked()
     bindx_clicked.second = -1;
 
     notifyAllPlayers(); //notify all players of the change
-    disableOwnerSites(); //disable owner sites
-    disableCloneableSites(); //disable and hide cloneable sites
 
     /** Update score on UI **/
 
@@ -237,8 +106,7 @@ void Board::on_pb_commit_clicked()
         }
         else
         {
-            enableOwnerSites(); //enable next player's owner sites
-            enableCloneableSites(); //enable next player's cloneable sites
+
             qDebug() << "Huh! Muggle";
         }
 
@@ -344,7 +212,6 @@ inline void Board::jump_commit_clicked()
     ui->t_actions->setItem(0,0,new QTableWidgetItem(QString::fromStdString(board_owner->name)));
     std::string action = "J:" + std::to_string(bindx_jump_parent.first) + "," + std::to_string(bindx_jump_parent.second) + "->" + std::to_string(bindx_clicked.first) + "," + std::to_string(bindx_clicked.second);
     ui->t_actions->setItem(0,1,new QTableWidgetItem(QString::fromStdString(action)));
-    disableJumpSites(); //disable and hide cloneable sites
 }
 
 
@@ -420,121 +287,6 @@ void Board::notifyAllPlayers()
         ui->t_score->setItem(players[i]->id,1,new QTableWidgetItem(QString::number(players[i]->score)));
     }
 
-}
-
-void Board::enableOwnerSites()
-{
-    /** Enables current player's currently owned sites (for jumps)
-     * Enables current player's clonable sites
-    **/
-    Point indx;
-    QPushButton *b;
-    for(uint i = 0; i < board_owner->owned_sites.size(); i++)
-    {
-       indx = board_owner->owned_sites[i];
-       b = button2d.value(QPair<int,int>(indx.x,indx.y));
-       setButtonOwnColor(indx.x,indx.y,board_owner->id);
-       b->setEnabled(true);
-       b->setCheckable(true);
-    }
-}
-
-void Board::disableOwnerSites()
-{
-    /** Disables current player's currently owned sites
-     *  Disables current player's clonable sites.
-     *  Called before shifting board ownership;
-     **/
-    Point indx;
-    QPushButton *b;
-    for(uint i = 0; i < board_owner->owned_sites.size(); i++)
-    {
-       indx = board_owner->owned_sites[i];
-       b = button2d.value(QPair<int,int>(indx.x,indx.y));
-       b->setEnabled(false);
-       //b->setCheckable(false);
-    }
-}
-
-void Board::enableCloneableSites()
-{
-    QPushButton *b;
-    std::vector<Point> cloneable_sites = board_owner->getCloneableSites(); // Consider making this class variable: Ease to reset
-    //qDebug() << QString::fromStdString(board_owner->name) << "got clonable sites: "<< QString::number(cloneable_sites.size());
-    for(uint i = 0; i < cloneable_sites.size(); i++)
-    {
-       Point indx = cloneable_sites[i];
-       //qDebug() << "Indx :" << indx.x << "," << indx.y;
-       b = button2d.value(QPair<int,int>(indx.x,indx.y));
-       setClonableStyle(indx.x,indx.y,board_owner->id);
-       b->setEnabled(true);
-       b->setCheckable(true);
-       b->setChecked(false);
-    }
-    clone_sites_enabled = true;
-}
-
-void Board::disableCloneableSites()
-{
-    QPushButton *b;
-    std::vector<Point> clonable_sites = board_owner->getCloneableSites(); // Consider making this class variable: Ease to reset
-    //qDebug() << QString::fromStdString(board_owner->name) << "got clonable sites: "<< QString::number(clonable_sites.size());
-    for(uint i = 0; i < clonable_sites.size(); i++)
-    {
-       Point indx = clonable_sites[i];
-       b = button2d.value(QPair<int,int>(indx.x,indx.y));
-       setButtonNeutralColor(indx.x,indx.y);
-       b->setEnabled(false);
-       //b->setCheckable(true);
-       b->setChecked(false);
-    }
-    clone_sites_enabled = false;
-}
-
-void Board::enableJumpSites()
-{
-    QPushButton *b;
-    if(bindx_clicked != QPair<int,int>(-1,-1))
-    {
-        std::vector<Point> jump_sites = board_owner->getJumpSites(Point(bindx_clicked.first,bindx_clicked.second)); // Consider making this class variable: Ease to reset
-        //qDebug() << QString::fromStdString(board_owner->name) << "got jump sites: "<< QString::number(jump_sites.size());
-        for(uint i = 0; i < jump_sites.size(); i++)
-        {
-           Point indx = jump_sites[i];
-           b = button2d.value(QPair<int,int>(indx.x,indx.y));
-           setClonableStyle(indx.x,indx.y,board_owner->id);
-           b->setEnabled(true);
-           b->setCheckable(true);
-           b->setChecked(false);
-        }
-        jump_sites_enabled = true;
-        bindx_jump_parent = bindx_clicked;
-    }
-}
-
-void Board::disableJumpSites()
-{
-    //qDebug() << "Disabling jump sites from " << bindx_jump_parent;
-    QPushButton *b;
-    if(bindx_jump_parent != QPair<int,int>(-1,-1))
-    {
-        std::vector<Point> jump_sites = board_owner->getJumpSites(Point(bindx_jump_parent.first,bindx_jump_parent.second)); // Consider making this class variable: Ease to reset
-        //qDebug() << QString::fromStdString(board_owner->name) << "got jump sites: "<< QString::number(jump_sites.size());
-        for(uint i = 0; i < jump_sites.size(); i++)
-        {
-           Point indx = jump_sites[i];
-           if(board[indx.x][indx.y] == UNCLAIMED)
-           {
-               b = button2d.value(QPair<int,int>(indx.x,indx.y));
-               setButtonNeutralColor(indx.x,indx.y);
-               b->setEnabled(false);
-               //b->setCheckable(true);
-               b->setChecked(false);
-           }
-        }
-        jump_sites_enabled = false;
-        bindx_jump_parent = QPair<int,int> (-1,-1);
-    }
 }
 
 void Board::on_pb_quit_clicked()
