@@ -10,6 +10,8 @@
 #include "include/player.h"
 #include <unordered_map>
 #include <QMessageBox>
+#include "include/ai.h"
+#include <typeinfo>
 
 namespace Ui {
 class Board;
@@ -25,7 +27,7 @@ public:
 
 private slots:
     void on_pb_quit_clicked();
-    void on_gb_clicked();
+    void gb_clicked();
     void on_pb_commit_clicked();
 
 private:
@@ -41,7 +43,7 @@ private:
 
     QStringList player_names; // Names of Players.
     std::vector<std::vector<char> > board; // Boads Stores the player owned sites
-    std::vector<Player> players;
+    std::vector<Player *> players;
     Player  *board_owner; //use unique pointer?
     QPair<int,int> bindx_clicked;
     QPair<int,int> bindx_jump_parent;

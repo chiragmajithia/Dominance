@@ -6,8 +6,11 @@
 #include <iostream>
 #include <QDebug>
 #include <unordered_map>
+#include "point.h"
 
 #define UNCLAIMED -1
+
+using namespace type;
 class Player
 {
 public:
@@ -15,51 +18,6 @@ public:
     Player(): board(NULL){}
 
     Player(std::vector<std::vector<char> > *b, int id_, std::string n);
-
-    struct Point{
-        int x,y;
-        Point(int x_ = 0, int y_ = 0):x(x_),y(y_){}
-        QString out()
-        {
-            return QString::number(x) + "," + QString::number(y);
-        }
-
-        bool operator<(Point p1) const
-        {
-            if(x == p1.x)
-            {
-                if(y < p1.y)
-                    return true;
-                else
-                    return false;
-            }
-            else if(x < p1.x)
-                    return true;
-            else
-                    return false;
-        }
-        bool operator==(Point p1) const
-        {
-            if(x == p1.x && y == p1.y)
-            {
-                return true;
-            }
-            else
-                return false;
-        }
-    };
-
-    struct KeyHasher
-    {
-      std::size_t operator()(const Point& k) const
-      {
-        using std::size_t;
-        using std::hash;
-
-        return ((hash<int>()(k.x)
-                 ^ (hash<int>()(k.y) << 1)) >> 1);
-      }
-    };
 
 public:
     std::vector<std::vector<char> > *board;
@@ -82,6 +40,7 @@ public:
     std::vector<Point> getJumpSites(Point p);
     void updateScore();
     uint getAvailableMoves();
+    virtual int playerType();
 
     /** Debug Helper Functions **/
     void dispBoard();

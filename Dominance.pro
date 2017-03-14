@@ -16,11 +16,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         init.cpp \
     board.cpp \
-    include/player.cpp
+    include/player.cpp \
+    include/ai.cpp
 
 HEADERS  += init.h \
     board.h \
-    include/player.h
+    include/player.h \
+    include/ai.h \
+    include/point.h
 
 FORMS    += init.ui \
     board.ui

@@ -1,5 +1,10 @@
 #include "player.h"
 
+int Player::playerType()
+{
+    return 0;
+}
+
 Player::Player(std::vector<std::vector<char> > *b, int id_, std::string n): board(b), id(id_), name(n)
 {
     X = (*board).size();
@@ -53,9 +58,9 @@ void Player::setJumpSites()
     }
 }
 
-std::vector<Player::Point> Player::getJumpSites(Point p)
+std::vector<Point> Player::getJumpSites(Point p)
 {
-    qDebug() << id << ": get Jump sites for " << p.x << p.y;
+    //qDebug() << id << ": get Jump sites for " << p.x << p.y;
     return jump_sites.at(p);
 }
 
@@ -77,7 +82,7 @@ void Player::populateOwnedSites()
         }
     }
     score = owned_sites.size();
-    qDebug() << QString::fromStdString(name) << " has " << QString(score) << "owned sites";
+    //qDebug() << QString::fromStdString(name) << " has " << QString(score) << "owned sites";
     setCloneableSites();
 }
 
@@ -85,7 +90,7 @@ void Player::populateOwnedSites()
 void Player::eraseOwnedSites()
 {
     owned_sites.resize(0);
-    qDebug() << QString::fromStdString(name) << " owned sites erased :" << owned_sites.size();
+    //qDebug() << QString::fromStdString(name) << " owned sites erased :" << owned_sites.size();
 }
 
 void Player::setCloneableSites()
@@ -114,7 +119,7 @@ void Player::setCloneableSites()
                 {
                     if((*board)[x_][y_] == UNCLAIMED && !c_sites[x_][y_])
                     {
-                        cloneable_sites.push_back(Player::Point(x_,y_));
+                        cloneable_sites.push_back(Point(x_,y_));
                         c_sites[x_][y_] = true;
                     }
 
@@ -123,10 +128,10 @@ void Player::setCloneableSites()
         }
 
     }
-   qDebug() << QString::fromStdString(name) <<"Displaying clonebale Size" << cloneable_sites.size();
+   //qDebug() << QString::fromStdString(name) <<"Displaying clonebale Size" << cloneable_sites.size();
     //dispVector(cloneable_sites);
 }
-std::vector<Player::Point> Player::getCloneableSites()
+std::vector<Point> Player::getCloneableSites()
 {
     return cloneable_sites;
 }
@@ -137,7 +142,7 @@ void Player::dispBoard()
 {
     QDebug out(QtDebugMsg);
 
-    out << QString::fromStdString(name) << " - (*board):";
+    out << QString::fromStdString(name) << " - (*board):\n";
     for(int i = 0; i < X; i++)
     {
         for(int j = 0; j < Y; j++)
@@ -151,7 +156,7 @@ void Player::dispBoard()
     }
 }
 
-void Player::dispVector(std::vector<Player::Point> vec)
+void Player::dispVector(std::vector<Point> vec)
 {
     qDebug() << QString::fromStdString(name) << ":";
     for(uint i = 0; i < vec.size(); i++)
