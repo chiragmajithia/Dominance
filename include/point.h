@@ -62,7 +62,7 @@ struct Move
    Point to;
    float score;
    Move(Action a_,Point from_, Point to_, int score_ = -1):action(a_),from(from_),to(to_),score(score_) {}
-   bool operator<(const Move &a)
+   bool operator<(const Move &a) const
    {
        return score > a.score;
    }
