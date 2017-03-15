@@ -25,7 +25,7 @@ struct Point{
         else
                 return false;
     }
-    bool operator==(Point p1) const
+    bool operator==(const Point p1) const
     {
         if(x == p1.x && y == p1.y)
         {
@@ -62,7 +62,7 @@ struct Move
    Point to;
    int score;
    Move(Action a_,Point from_, Point to_, int score_ = -1):action(a_),from(from_),to(to_),score(score_) {}
-   bool operator<(const Move &a)
+   bool operator<(const Move &a) const
    {
        return score > a.score;
    }
