@@ -25,7 +25,7 @@ struct Point{
         else
                 return false;
     }
-    bool operator==(Point p1) const
+    bool operator==(const Point p1) const
     {
         if(x == p1.x && y == p1.y)
         {
